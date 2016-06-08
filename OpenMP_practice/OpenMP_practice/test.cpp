@@ -66,7 +66,6 @@ void ppm_write(unsigned char* bitmap, int xdim, int ydim, FILE* fp)
 	fprintf(fp, "%d %d\n", xdim, ydim);
 	fprintf(fp, "255\n");
 	
-
 	for (y = 0; y < ydim; y++){
 		for (x = 0; x < xdim; x++) {
 			i = x + y*xdim;
@@ -103,13 +102,7 @@ int main(int argc, char* argv[])
 		option = OPENMP;
 		no_threads = atoi(argv[1]);
 	}
-
-
-
-	omp_set_num_threads(4);
-
-	
-
+	omp_set_num_threads(8);
 
 	Sphere *temp_s = (Sphere*)malloc(sizeof(Sphere) * SPHERES);
 	for (int i = 0; i<SPHERES; i++) {
