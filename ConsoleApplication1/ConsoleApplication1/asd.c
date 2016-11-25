@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <string.h>
 
 #define AUDIENCE_NUM 100
-#define MOVIE_NUM 500
+#define MOVIE_NUM 100
 #define POPULATION 70000
 
 
@@ -93,10 +92,10 @@ void parsing(char* str, int row) {
 
 	int i = 0;
 
-	
+
 	char *token = NULL;
 	char token2[100];
-	
+
 
 	token = strtok(str, "\t");
 	strcpy(chart[row]->name, token);
@@ -116,29 +115,26 @@ void parsing(char* str, int row) {
 	token = strtok(NULL, "\t");
 	strcpy(chart[row]->director, token);
 
-	token = strtok(NULL, "|");
-	while (token != NULL && i < 5) {
-		
-		chart[row]->actors[i] = (char*)malloc(sizeof(char) * 100);
-		
+	token = strtok(NULL, "\n|");
+	while (token != NULL && i < 3) {
+
+
 		strcpy(chart[row]->actors[i], token);
-		
-		
-		token = strtok(NULL, "|");
-	
+
+
 		i++;
+		token = strtok(NULL, "\n|");
 	}
 
 	i = 0;
-	token = strtok(token2, "|");
+	token = strtok(token2, "\n|");
 	while (token != NULL && i < 3) {
-	
+
 		chart[row]->genre[i] = (char*)malloc(sizeof(char) * 100);
 		strcpy(chart[row]->genre[i], token);
-		token = strtok(NULL, "|");
-		
+		token = strtok(NULL, "\n|");
+
 		i++;
-		
 	}
 
 }
@@ -150,45 +146,20 @@ void makeStruct(movie *chart) {
 	int j = 0;
 	for (int i = 0; i < 3; i++) {
 		j = 0;
-		while (chart->actors[i]!=NULL) {
+		while (chart->actors[i] != NULL) {
 			if (actors[j]->name == NULL) {
 
 				actors[j]->name = (char*)malloc(sizeof(char) * 100);
 				strcpy(actors[j]->name, chart->actors[i]);
 				actors[j]->actor_count++;
-				actors[j++]->avg_aud += chart->audience;
+				actors[j]->avg_aud += chart->audience;
 
 				break;
 			}
-			else if (!strcmp(actors[j]->name, chart->actors[i])) {
+			else if (strcmp(actors[j]->name, chart->actors[i])) {
 
 				actors[j]->actor_count++;
-				actors[j++]->avg_aud += chart->audience;
-				break;
-			}
-			
-			else j++;
-		}
-
-
-	}
-
-	for (int i = 0; i < 3; i++) {
-		j = 0;
-		while (chart->genre[i] != NULL) {
-			if (genres[j]->name == NULL) {
-
-				genres[j]->name = (char*)malloc(sizeof(char) * 100);
-				strcpy(genres[j]->name, chart->genre[i]);
-				genres[j]->genre_count++;
-				
-
-				break;
-			}
-			else if (!strcmp(genres[j]->name, chart->genre[i])) {
-
-				genres[j]->genre_count++;
-				
+				actors[j]->avg_aud += chart->audience;
 				break;
 			}
 
@@ -249,7 +220,7 @@ void makeVisit() {                        //각 사람별로 모든 영화에 대해 관객수�
 			test_aud[i]->visit[j] = (rand() % 101 < percent) ? 1 : 0;
 			if (test_aud[i]->visit[j]) {
 				test_aud[i]->view_count++;
-				makeStruct(chart[j]);
+				//makeStruct(chart[j]);
 
 			}
 
@@ -277,13 +248,16 @@ void initializse() {                     // 구조체 배열(chart, test_aud 초기화);
 		chart[i] = (movie*)malloc(sizeof(movie));
 		chart[i]->name = (char*)malloc(sizeof(char) * 100);
 		chart[i]->nation = (char*)malloc(sizeof(char) * 100);
-		chart[i]->genre = (char**)malloc(sizeof(char*)*3);
-		for (int j = 0; j < 3; j++) chart[i]->genre[j] = NULL;
+		chart[i]->genre = (char**)malloc(sizeof(char*));
 
 		chart[i]->director = (char*)malloc(sizeof(char) * 100);
-		chart[i]->actors = (char**)malloc(sizeof(char*)*5);
-		for (int j = 0; j < 3; j++) chart[i]->actors[j] = NULL;
-	
+		chart[i]->actors = (char**)malloc(sizeof(char*) * 3);
+		for (int j = 0; j < 3; j++) {
+			chart[i]->actors[j] = (char*)malloc(sizeof(char) * 100);
+			chart[i]->actors[j] = NULL;
+
+		}
+
 	}
 
 	for (int i = 0; i < AUDIENCE_NUM; i++) {
@@ -297,12 +271,6 @@ void initializse() {                     // 구조체 배열(chart, test_aud 초기화);
 		actors[i]->name = NULL;
 		actors[i]->actor_count = 0;
 		actors[i]->avg_aud = 0;
-	}
-	for (int i = 0; i < 20; i++) {
-		genres[i] = (genre_heap*)malloc(sizeof(genre_heap));
-		genres[i]->name = NULL;
-		genres[i]->genre_count = 0;
-		
 	}
 
 }
@@ -336,22 +304,17 @@ void main() {
 
 	for (i = 0; i < MOVIE_NUM; i++) {
 		//printf("%s         %d   %d   %s   %s   %s   %s\n", chart[i]->name, chart[i]->audience, chart[i]->screen_num, chart[i]->nation, chart[i]->genre[0], chart[i]->director, chart[i]->actors[0]);
-		//for(int j =0; j<3; j++)if(chart[i]->actors[j]!=NULL)printf("%s\n", chart[i]->actors[j]);
-	
+		for (int j = 0; j<3; j++)printf("%s\n", chart[i]->actors[j]);
+
 	}
 
 	i = 0;
 
-	makeVisit();
-	printf("상영횟수%d\n", test_aud[0]->view_count);
-	while (genres[i]->name != NULL) {
-		
-		printf("%s -%d\n", genres[i]->name, genres[i]->genre_count);
-	i++;
-	}
+	//makeVisit();
 
-	while (actors[i]->name != NULL) {
-		printf("%s -%d\n", actors[i]->name, actors[i]->actor_count);
-		i++;
-	}
+	/*while (actors[i]->name != NULL) {
+	printf("%s\n", actors[i++]->name);
+
+
+	}*/
 }
